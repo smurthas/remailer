@@ -8,7 +8,7 @@ var argv = require('optimist')
 var MailListener = require('mail').MailListener;
 var rules = require('rules');
 
-var myRules = require('./myRules.js');
+var myRules = require(process.env.IMAP_RULES);
 
 
 var mailListener = new MailListener({
