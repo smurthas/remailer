@@ -1,1 +1,1 @@
-web: node test.js
+worker: ./worker.sh
