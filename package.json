@@ -1,0 +1,27 @@
+{
+  "name": "imap-labeller",
+  "version": "0.0.0",
+  "description": "Rules engine for labelling gmail messages",
+  "main": "example.js",
+  "dependencies": {
+    "async": "~0.2.9",
+    "optimist": "~0.6.0",
+    "imap": "~0.8.6",
+    "underscore": "~1.5.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "istanbul cover _mocha -- -R spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/smurthas/remailer.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "gitHead": "84815cd4597920148946ce2be32ce3cf47caa331",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/smurthas/remailer/issues"
+  }
+}

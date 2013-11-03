@@ -1,6 +1,7 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
+var _ = require('underscore');
 var Imap = require('imap');
 
 function MailListener(imapOptions, lastSeenUID) {
@@ -74,7 +75,9 @@ MailListener.prototype.getMessages = function() {
           if (uid > self.lastSeenUID) {
             self.lastSeenUID = uid;
           }
-          self.emit('new_message', message);
+          //console.error('message', message);
+          self.emit('message',
+            new Message(message.attributes, message.headers, self.imap));
           console.log(prefix + 'Finished');
         });
       });
@@ -82,10 +85,24 @@ MailListener.prototype.getMessages = function() {
         console.log('Fetch error: ' + err);
       });
       f.once('end', function() {
-        console.log('Done fetching all messages!');
+        console.log('Done fetching messages!');
       });
     });
   });
 }
+
+function Message(attributes, headers, imapSource) {
+  _.extend(this, attributes);
+  this.headers = headers;
+  this._imap = imapSource;
+}
+
+Message.prototype.addLabels = function(labels, callback) {
+  this._imap.addLabels(this.uid, labels, callback);
+};
+
+Message.prototype.removeLabels = function(labels, callback) {
+  this._imap.delLabels(this.uid, labels, callback);
+};
 
 module.exports.MailListener = MailListener;

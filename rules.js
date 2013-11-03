@@ -1,20 +1,44 @@
+var _ = require('underscore');
 
-
-module.exports.from = function(msg, from) {
-  if (typeof from === 'string') return isFromString(msg, from);
-
-  for (var i in from) if (module.exports.from(msg, from[i])) return true;
-  return false;
+function getMessageValues(fields, msg) {
+  if (typeof fields === 'string' && fields.indexOf(',') !== -1) {
+    return getMessageValues(fields.split(','), msg);
+  }
+  if (fields instanceof Array) {
+    var ret = [];
+    for (var i in fields) ret = ret.concat(getMessageValues(fields[i], msg));
+    return ret;
+  }
+  if (fields === 'recipients') {
+    return getMessageValues(['to', 'cc', 'bcc'], msg);
+  }
+  return msg.headers[fields];
 }
 
-function isFromString(msg, from) {
-  var msgFrom = msg.headers && msg.headers.from;
-  if (!msgFrom) return false;
+module.exports.runTests = function(test, msg) {
+  var msgValues = getMessageValues(test.fields, msg);
+  return runTest(msgValues, test.value, test.matchType);
+};
 
-  for (var i in msgFrom) {
-    var testFrom = msgFrom[i];
-    if (testFrom.indexOf(from) !== -1) return true;
+function runTest(msgValues, testValues, matchType) {
+  // string means we're at the inner most test value so we can actually compare
+  // to the message values
+  if (typeof testValues === 'string') {
+    if (matchType === 'partial') {
+      var any = _.any(msgValues, function(val) {
+        return val && val.indexOf(testValues) !== -1;
+      });
+      return any;
+    }
+    if (matchType === 'exact') {
+      return _.contains(msgValues, testValues);
+    }
+
+    throw new Error('invalid matchType');
   }
 
-  return false;
+  // we've got an array, so iterate over it, recursing with each
+  return _.any(testValues, function(testValue) {
+    return runTest(msgValues, testValue, matchType);
+  });
 }
