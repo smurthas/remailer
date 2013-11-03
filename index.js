@@ -1,4 +1,8 @@
+var fs = require('fs');
+var url = require('url');
+
 var async = require('async');
+var request = require('request');
 
 var argv = require('optimist')
   .default('since-uid', process.env.IMAP_UID || 1)
@@ -8,7 +12,35 @@ var argv = require('optimist')
 var MailListener = require('mail').MailListener;
 var rules = require('rules');
 
-var myRules = require(process.env.IMAP_RULES);
+var myRules;
+
+function loadMyRules(rulesPath, callback) {
+  try {
+    myRules = url.parse(rulesPath);
+  } catch(err) {
+    // load from file
+    try {
+      myRules = require(rulesPath);
+    } catch(err) {
+      return callback(err);
+    }
+    console.log('loaded myRules fs');
+    return setImmediate(callback.bind(this, myRules));
+  }
+
+  request.get(rulesPath, function(err, resp, body) {
+    if (err) return callback(err);
+    if (resp.statusCode !== 200) return callback(resp.statusCode);
+    try {
+      fs.writeFileSync('/tmp/myRules.js', body);
+      myRules = require('/tmp/myRules.js');
+    } catch(err) {
+      return callback(err);
+    }
+    console.log('loaded myRules url');
+    return setImmediate(callback.bind(this, myRules));
+  });
+}
 
 
 var mailListener = new MailListener({
@@ -52,5 +84,6 @@ mailListener.on('message', function(msg) {
   Q.push(msg);
 });
 
-
-mailListener.start();
+loadMyRules(process.env.IMAP_RULES, function(err, rules) {
+  mailListener.start();
+});
