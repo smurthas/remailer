@@ -1,7 +1,7 @@
 var async = require('async');
 
 var argv = require('optimist')
-  .default('since-uid', process.env.UID || 1)
+  .default('since-uid', process.env.IMAP_UID || 1)
   .alias('uid', 'since-uid')
   .argv;
 
@@ -12,8 +12,8 @@ var myRules = require('./myRules.js');
 
 
 var mailListener = new MailListener({
-  user: process.env.USER,
-  password: process.env.PASS,
+  user: process.env.IMAP_USER,
+  password: process.env.IMAP_PASS,
   host: 'imap.gmail.com',
   port: 993,
   tls: true,
