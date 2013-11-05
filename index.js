@@ -4,51 +4,34 @@ var url = require('url');
 var async = require('async');
 var request = require('request');
 
-var MailListener = require('mail').MailListener;
-var MailHandler = require('mailHandler').MailHandler;
+var MailListener = require('mailListener').MailListener;
+var MailWorker = require('MailWorker');
+var MemoryQueue = require('memoryQueue');
+var QUEUE_NAME = process.env.IMAP_USER;
 
-
-function loadMyRules(rulesPath, callback) {
-  var myRules;
-  try {
-    myRules = url.parse(rulesPath);
-  } catch(err) {
-    // load from file
-    try {
-      myRules = require(rulesPath);
-    } catch(err) {
-      return callback(err);
-    }
-    console.log('loaded myRules fs');
-    return setImmediate(callback.bind(this, null, myRules));
-  }
-
-  console.log('loading myRules from url', rulesPath);
-  request.get(rulesPath, function(err, resp, body) {
-    if (err) return callback(err);
-    if (resp.statusCode !== 200) return callback(resp.statusCode);
-    try {
-      fs.writeFileSync('/tmp/myRules.js', body);
-      myRules = require('/tmp/myRules.js');
-    } catch(err) {
-      return callback(err);
-    }
-    console.log('loaded myRules from url', rulesPath);
-    return setImmediate(callback.bind(this, null, myRules));
-  });
-}
-
-
-loadMyRules(process.env.IMAP_RULES, function(err, rules) {
+function start(user, pass, lastUID, rulesPath) {
+  // start listening for new messages
   var mailListener = new MailListener({
-    user: process.env.IMAP_USER,
-    password: process.env.IMAP_PASS,
+    user: user,
+    password: pass,
     host: 'imap.gmail.com',
     port: 993,
     tls: true,
     tlsOptions: { rejectUnauthorized: false }
-  }, process.env.IMAP_UID);
-  var handler = new MailHandler(rules);
-  mailListener.on('message', handler.handleMessage);
+  }, lastUID);
+
+  var Q = new MemoryQueue(QUEUE_NAME);
+  mailListener.on('message', function(msg) {
+    Q.enqueue(msg, function(err) {
+      if (err) console.error('enqueue error', err);
+    });
+  });
   mailListener.start();
-});
+
+  // start a worker to handle the messages
+  var mailWorker = new MailWorker(user, rulesPath);
+  mailWorker.start();
+}
+
+start(process.env.IMAP_USER, process.env.IMAP_PASS,
+      process.env.IMAP_UID, process.env.IMAP_RULES);
