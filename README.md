@@ -19,3 +19,10 @@ Currently, only works with Gmail.
 # Rules
 
 A path or url to a rules file is required in `IMAP_RULES`.
+
+## Example Rules
+
+```javascript
+module.exports = [
+];
+```
