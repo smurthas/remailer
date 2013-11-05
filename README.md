@@ -9,5 +9,6 @@ Do smart things with my email
 ```bash
 npm install
 
-node index.js
+# setup your .env file with IMAP_USER, IMAP_PASS, IMAP_RULES
+foreman start
 ```
