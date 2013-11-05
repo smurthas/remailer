@@ -1,4 +1,4 @@
-setInterval(function() {
+setTimeout(function() {
   console.log('yep', Date.now());
-  console.error('process.env', process.env);
+  process.exit(2);
 }, 1000);
