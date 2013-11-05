@@ -5,7 +5,7 @@ var async = require('async');
 var request = require('request');
 
 var MailListener = require('mailListener').MailListener;
-var MailWorker = require('MailWorker');
+var MailWorker = require('mailWorker');
 var MemoryQueue = require('memoryQueue');
 var QUEUE_NAME = process.env.IMAP_USER;
 
