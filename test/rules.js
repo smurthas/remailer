@@ -2,7 +2,7 @@ var assert = require('assert');
 var rules = require('rules');
 
 describe('runTests()', function() {
-  it('should throw an error for an invalid matchType', function() {
+  it('should throw an error for an invalid matcher', function() {
     var msg = {
       headers: {
         from: [
@@ -12,8 +12,8 @@ describe('runTests()', function() {
     };
 
     var test = {
-      fields: 'from',
-      matchType: 'blargh',
+      fields: 'headers.from',
+      matcher: 'blargh',
       value: 'blargh@gmail.com'
     };
 
@@ -37,8 +37,8 @@ describe('runTests()', function() {
     };
 
     var test = {
-      fields: 'from',
-      matchType: 'partial',
+      fields: 'headers.from',
+      matcher: 'partial',
       value: 'blargh@gmail.com'
     };
 
@@ -55,8 +55,8 @@ describe('runTests()', function() {
     };
 
     var test = {
-      fields: 'from',
-      matchType: 'partial',
+      fields: 'headers.from',
+      matcher: 'partial',
       value: ['nomatch', 'blargh@gmail.com']
     };
 
@@ -73,8 +73,8 @@ describe('runTests()', function() {
     };
 
     var test = {
-      fields: 'recipients,from',
-      matchType: 'partial',
+      fields: 'recipients,headers.from',
+      matcher: 'partial',
       value: 'blargh@gmail.com'
     };
 
@@ -92,7 +92,7 @@ describe('runTests()', function() {
 
     var test = {
       fields: 'recipients',
-      matchType: 'partial',
+      matcher: 'partial',
       value: 'blargh@gmail.com'
     };
 
@@ -109,8 +109,8 @@ describe('runTests()', function() {
     };
 
     var test = {
-      fields: 'from',
-      matchType: 'exact',
+      fields: 'headers.from',
+      matcher: 'exact',
       value: 'Simon Murtha Smith <blargh@gmail.com>'
     };
 
@@ -121,14 +121,14 @@ describe('runTests()', function() {
     var msg = {
       headers: {
         from: [
-          'Simon Murtha Smith <smurthas@gmail.com>'
+          'Simon Murtha Smith <blargh@gmail.com>'
         ]
       }
     };
 
     var test = {
-      fields: 'from',
-      matchType: 'partial',
+      fields: 'headers.from',
+      matcher: 'partial',
       value: 'someoneelse@gmail.com'
     };
 
@@ -139,18 +139,38 @@ describe('runTests()', function() {
     var msg = {
       headers: {
         from: [
-          'Simon Murtha Smith <smurthas@gmail.com>'
+          'Simon Murtha Smith <blargh@gmail.com>'
         ]
       }
     };
 
     var test = {
-      fields: 'from',
-      matchType: 'exact',
+      fields: 'headers.from',
+      matcher: 'exact',
       value: 'gmail'
     };
 
     assert.strictEqual(rules.runTests(test, msg), false);
+  });
+
+  describe('subject', function() {
+    it('should match on the subject field', function() {
+      var msg = {
+        headers: {
+          subject: [
+            'Your payment was processed for account ending in 12345'
+          ]
+        }
+      };
+
+      var test = {
+        fields: 'headers.subject',
+        matcher: 'partial',
+        value: 'payment was processed'
+      };
+
+      assert.strictEqual(rules.runTests(test, msg), true);
+    });
   });
 
   describe('$not', function() {
@@ -158,14 +178,14 @@ describe('runTests()', function() {
       var msg = {
         headers: {
           from: [
-            'Simon Murtha Smith <smurthas@gmail.com>'
+            'Simon Murtha Smith <blargh@gmail.com>'
           ]
         }
       };
 
       var test = { $not: {
-        fields: 'from',
-        matchType: 'exact',
+        fields: 'headers.from',
+        matcher: 'exact',
         value: 'gmail'
       }};
 
@@ -189,13 +209,13 @@ describe('runTests()', function() {
       var test = {
         $and: [
           {
-            fields: 'from',
-            matchType: 'partial',
+            fields: 'headers.from',
+            matcher: 'partial',
             value: 'blargh@gmail.com'
           },
           {
-            fields: 'to',
-            matchType: 'exact',
+            fields: 'headers.to',
+            matcher: 'exact',
             value: 'someonelse@gmail.com'
           },
         ]
@@ -219,13 +239,13 @@ describe('runTests()', function() {
       var test = {
         $and: [
           {
-            fields: 'from',
-            matchType: 'exact',
+            fields: 'headers.from',
+            matcher: 'exact',
             value: 'blargh@gmail.com'
           },
           {
-            fields: 'to',
-            matchType: 'exact',
+            fields: 'headers.to',
+            matcher: 'exact',
             value: 'someonelse@gmail.com'
           },
         ]
@@ -251,13 +271,13 @@ describe('runTests()', function() {
       var test = {
         $or: [
           {
-            fields: 'from',
-            matchType: 'partial',
+            fields: 'headers.from',
+            matcher: 'partial',
             value: 'blargh@gmail.com'
           },
           {
-            fields: 'to',
-            matchType: 'exact',
+            fields: 'headers.to',
+            matcher: 'exact',
             value: 'nomatch@gmail.com'
           },
         ]
@@ -281,19 +301,57 @@ describe('runTests()', function() {
       var test = {
         $and: [
           {
-            fields: 'from',
-            matchType: 'exact',
+            fields: 'headers.from',
+            matcher: 'exact',
             value: 'blargh@gmail.com'
           },
           {
-            fields: 'to',
-            matchType: 'exact',
+            fields: 'headers.to',
+            matcher: 'exact',
             value: 'nomatch@gmail.com'
           },
         ]
       };
 
       assert.strictEqual(rules.runTests(test, msg), false);
+    });
+  });
+
+  describe('gt', function() {
+    it('should match if message value > test value', function() {
+      var msg = {
+        extracted: {
+          amount: 9774
+        }
+      };
+
+      var test = {
+        fields: 'extracted.amount',
+        matcher: 'gt',
+        value: 8553
+      };
+
+      assert(rules.runTests(test, msg));
+    });
+
+  });
+
+  describe('extractors', function() {
+    it('should make a value available at msg.extracted.<key_name>', function() {
+      var msg = {
+        text: {
+          plain: 'abcd,1254'
+        }
+      };
+
+      var extractors = {
+        myGreatKey: function(msg) {
+          return msg.text.plain.slice(3,5);
+        }
+      };
+
+      rules.runExtractors(extractors, msg);
+      assert.strictEqual(msg.extracted.myGreatKey, 'd,');
     });
   });
 
