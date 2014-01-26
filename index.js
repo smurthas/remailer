@@ -42,6 +42,7 @@ if (!module.parent) {
       console.error('error loading config', err);
       process.exit(2);
     }
+    console.error('config', config);
     start(config.IMAP_USER, config.IMAP_PASS,
       config.IMAP_UID, config.IMAP_RULES);
   });
