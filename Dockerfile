@@ -8,4 +8,5 @@ ADD . /app
 RUN cd /app; npm install
 
 ENV NODE_PATH lib
-CMD ["node", "/app/index.js", "--etcd-host", "172.17.42.1"]
+WORKDIR /app
+CMD ["node", "index.js", "--etcd-host", "172.17.42.1"]
