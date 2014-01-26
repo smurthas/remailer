@@ -22,7 +22,7 @@ function start(user, pass, lastUID, rulesPath) {
     tlsOptions: { rejectUnauthorized: false }
   }, new UIDStore('mem', lastUID));
 
-  var Q = new MemoryQueue(config.queueName);
+  var Q = new MemoryQueue(user);
   mailListener.on('message', function(msg) {
     Q.enqueue(msg, function(err) {
       if (err) console.error('enqueue error', err);
@@ -31,7 +31,7 @@ function start(user, pass, lastUID, rulesPath) {
   mailListener.start();
 
   // start a worker to handle the messages
-  var mailWorker = new MailWorker(user, rulesPath);
+  var mailWorker = new MailWorker(Q, rulesPath);
   mailWorker.start();
 }
 
