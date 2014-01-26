@@ -8,7 +8,9 @@
     "optimist": "~0.6.0",
     "imap": "~0.8.6",
     "underscore": "~1.5.2",
-    "request": "~2.27.0"
+    "request": "~2.27.0",
+    "knox": "~0.8.6",
+    "node-etcd": "~2.0.5"
   },
   "devDependencies": {},
   "scripts": {

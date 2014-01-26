@@ -3,11 +3,13 @@ var url = require('url');
 
 var async = require('async');
 var request = require('request');
+var argv = require('optimist').argv;
 
-var MailListener = require('mailListener').MailListener;
+var MailListener = require('mailListener');
 var MailWorker = require('mailWorker');
 var MemoryQueue = require('memoryQueue');
-var QUEUE_NAME = process.env.IMAP_USER;
+var UIDStore = require('UIDStore');
+var config = require('config');
 
 function start(user, pass, lastUID, rulesPath) {
   // start listening for new messages
@@ -18,9 +20,9 @@ function start(user, pass, lastUID, rulesPath) {
     port: 993,
     tls: true,
     tlsOptions: { rejectUnauthorized: false }
-  }, lastUID);
+  }, new UIDStore('mem', lastUID));
 
-  var Q = new MemoryQueue(QUEUE_NAME);
+  var Q = new MemoryQueue(config.queueName);
   mailListener.on('message', function(msg) {
     Q.enqueue(msg, function(err) {
       if (err) console.error('enqueue error', err);
@@ -33,5 +35,14 @@ function start(user, pass, lastUID, rulesPath) {
   mailWorker.start();
 }
 
-start(process.env.IMAP_USER, process.env.IMAP_PASS,
-      process.env.IMAP_UID, process.env.IMAP_RULES);
+if (!module.parent) {
+  var etcdHost = argv['etcd-host'];
+  config.load(etcdHost? 'etcd':null, etcdHost, function(err) {
+    if (err) {
+      console.error('error loading config', err);
+      process.exit(2);
+    }
+    start(config.IMAP_USER, config.IMAP_PASS,
+      config.IMAP_UID, config.IMAP_RULES);
+  });
+}
