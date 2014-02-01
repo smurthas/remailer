@@ -11,7 +11,7 @@ var MemoryQueue = require('memoryQueue');
 var UIDStore = require('UIDStore');
 var config = require('config');
 
-function start(user, pass, lastUID, rulesPath) {
+function start(user, pass, uidConfig, rulesPath) {
   // start listening for new messages
   var mailListener = new MailListener({
     user: user,
@@ -20,7 +20,7 @@ function start(user, pass, lastUID, rulesPath) {
     port: 993,
     tls: true,
     tlsOptions: { rejectUnauthorized: false }
-  }, new UIDStore('mem', lastUID));
+  }, new UIDStore('etcd', uidConfig));
 
   var Q = new MemoryQueue(user);
   mailListener.on('message', function(msg) {
@@ -42,7 +42,10 @@ if (!module.parent) {
       console.error('error loading config', err);
       process.exit(2);
     }
-    start(config.IMAP_USER, config.IMAP_PASS,
-      config.IMAP_UID, config.IMAP_RULES);
+    var user = config.IMAP_USER;
+    var pass = config.IMAP_PASS;
+    var uidConfig = etcdHost? {host: etcdHost} : config.IMAP_UID;
+    var rules = config.IMAP_RULES;
+    start(user, pass, uidConfig, rules);
   });
 }
