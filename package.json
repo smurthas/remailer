@@ -12,9 +12,12 @@
     "knox": "~0.8.6",
     "node-etcd": "~2.0.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "~1.17.1",
+    "istanbul": "~0.2.4"
+  },
   "scripts": {
-    "test": "istanbul cover _mocha -- -R spec"
+    "test": "node node_modules/istanbul/lib/cli.js cover _mocha -- -R spec"
   },
   "repository": {
     "type": "git",

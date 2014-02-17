@@ -66,7 +66,13 @@ describe('UIDStore', function() {
     });
 
     beforeEach(function(done) {
-      etcd.del(store.impl.path, done);
+      etcd.del(store.impl.path, function(err, blargh) {
+        if (err && err.errorCode !== 100) {
+          console.error('err', err);
+          throw err;
+        }
+        done();
+      });
     });
 
     it('should be able to set and get UIDs', createSetAndGetTest(store));

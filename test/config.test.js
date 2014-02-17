@@ -3,14 +3,14 @@ var assert = require('assert');
 var config = require('config');
 
 describe('config', function() {
-  describe('env', function() {
+/*  describe('env', function() {
     it('should load env vars', function(done) {
       config.load(null, null, function() {
         assert(Object.keys(config).length > 2);
         done();
       });
     });
-  });
+  });*/
 
   /*
   describe('etcd', function() {
