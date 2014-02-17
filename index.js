@@ -36,10 +36,6 @@ function start(user, pass, uidConfig, rulesPath) {
 }
 
 if (!module.parent) {
-  if (err) {
-    console.error('error loading config', err);
-    process.exit(2);
-  }
   var user = config.IMAP_USER;
   var pass = config.IMAP_PASS;
   var rules = config.IMAP_RULES;
