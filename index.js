@@ -1,8 +1,3 @@
-var fs = require('fs');
-var url = require('url');
-
-var async = require('async');
-var request = require('request');
 var argv = require('optimist').argv;
 
 var MailListener = require('mailListener');
@@ -23,8 +18,8 @@ function start(user, pass, uidConfig, rulesPath) {
   }, new UIDStore('etcd', uidConfig));
 
   var Q = new MemoryQueue(user);
-  mailListener.on('message', function(msg) {
-    Q.enqueue(msg, function(err) {
+  mailListener.on('message', function (msg) {
+    Q.enqueue(msg, function (err) {
       if (err) console.error('enqueue error', err);
     });
   });
