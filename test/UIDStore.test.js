@@ -21,7 +21,7 @@ function createSetAndGetTest(store) {
         });
       });
     });
-  }
+  };
 }
 
 function createNotLowerTest(store) {
@@ -37,7 +37,7 @@ function createNotLowerTest(store) {
         });
       });
     });
-  }
+  };
 }
 
 describe('UIDStore', function() {
@@ -57,6 +57,7 @@ describe('UIDStore', function() {
         secret:'npe',
         bucket: 'nah'
       }});
+      assert(store);
     });
   });
 
@@ -65,14 +66,29 @@ describe('UIDStore', function() {
       host: '172.17.42.1'
     });
 
-    beforeEach(function(done) {
-      etcd.del(store.impl.path, function(err, blargh) {
+/*    beforeEach(function(done) {
+      etcd.del(store.impl.path, function(err) {
         if (err && err.errorCode !== 100) {
           console.error('err', err);
           throw err;
         }
         done();
       });
+    });
+
+    it('should be able to set and get UIDs', createSetAndGetTest(store));
+
+    it('should not set a UID that is lower than the one it has',
+      createNotLowerTest(store));*/
+  });
+
+  describe('redisUIDStore', function() {
+    var store = new UIDStore('redis', {
+      url: 'redis://localhost:6379'
+    });
+
+    beforeEach(function(done) {
+      store.clear(done);
     });
 
     it('should be able to set and get UIDs', createSetAndGetTest(store));

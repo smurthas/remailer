@@ -1,16 +1,16 @@
 {
-  "name": "imap-labeller",
+  "name": "stdinbox",
   "version": "0.0.0",
   "description": "Rules engine for labelling gmail messages",
   "main": "example.js",
   "dependencies": {
     "async": "~0.2.9",
-    "optimist": "~0.6.0",
     "imap": "~0.8.6",
     "underscore": "~1.5.2",
     "request": "~2.27.0",
     "knox": "~0.8.6",
-    "node-etcd": "~2.0.5"
+    "node-etcd": "~2.0.5",
+    "redis": "~0.10.1"
   },
   "devDependencies": {
     "mocha": "~1.17.1",
@@ -21,13 +21,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/smurthas/remailer.git"
+    "url": "git://github.com/smurthas/stdinbox.git"
   },
   "author": "",
   "license": "MIT",
   "gitHead": "84815cd4597920148946ce2be32ce3cf47caa331",
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/smurthas/remailer/issues"
+    "url": "https://github.com/smurthas/stdinbox/issues"
   }
 }

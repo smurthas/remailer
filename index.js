@@ -1,5 +1,3 @@
-var argv = require('optimist').argv;
-
 var MailListener = require('mailListener');
 var MailWorker = require('mailWorker');
 var MemoryQueue = require('memoryQueue');
@@ -15,7 +13,7 @@ function start(user, pass, uidConfig, rulesPath) {
     port: 993,
     tls: true,
     tlsOptions: { rejectUnauthorized: false }
-  }, new UIDStore('etcd', uidConfig));
+  }, new UIDStore('redis', uidConfig));
 
   var Q = new MemoryQueue(user);
   mailListener.on('message', function (msg) {
@@ -31,9 +29,13 @@ function start(user, pass, uidConfig, rulesPath) {
 }
 
 if (!module.parent) {
+  console.error('config', config);
   var user = config.IMAP_USER;
   var pass = config.IMAP_PASS;
   var rules = config.IMAP_RULES;
-  var uidConfig = { host: argv['etcd-host']};
+  var uidConfig = { url: config.REDISCLOUD_URL };
+
+  // this is for etcd
+  //var uidConfig = { host: argv['etcd-host']};
   start(user, pass, uidConfig, rules);
 }
