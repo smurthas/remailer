@@ -1,5 +1,6 @@
-remailer
+stdinbox
 ========
+[![Build Status](https://drone.io/github.com/smurthas/stdinbox/status.png)](https://drone.io/github.com/smurthas/stdinbox/latest)
 
 Do smart things with my email
 
@@ -8,8 +9,19 @@ Do smart things with my email
 
 ```bash
 npm install
+```
 
-# setup your .env file with IMAP_USER, IMAP_PASS, IMAP_RULES, and IMAP_UID
+set up your .env file with
+
+```
+IMAP_USER=someone@gmail.com
+IMAP_PASS=yourpassword
+IMAP_RULES=/path/to/a/rules/file.js
+```
+
+then run it:
+
+```
 foreman start
 ```
 
