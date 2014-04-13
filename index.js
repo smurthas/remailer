@@ -1,10 +1,12 @@
+var argv = require('optimist').argv;
+
 var MailListener = require('mailListener');
 var MailWorker = require('mailWorker');
 var MemoryQueue = require('memoryQueue');
 var UIDStore = require('UIDStore');
 var config = require('config');
 
-function start(user, pass, uidConfig, rulesPath) {
+function setup(user, pass, uidConfig, rulesPath) {
   // start listening for new messages
   var mailListener = new MailListener({
     user: user,
@@ -13,7 +15,7 @@ function start(user, pass, uidConfig, rulesPath) {
     port: 993,
     tls: true,
     tlsOptions: { rejectUnauthorized: false }
-  }, new UIDStore('redis', uidConfig));
+  }, new UIDStore(config.UID_STORE, uidConfig));
 
   var Q = new MemoryQueue(user);
   mailListener.on('message', function (msg) {
@@ -21,11 +23,12 @@ function start(user, pass, uidConfig, rulesPath) {
       if (err) console.error('enqueue error', err);
     });
   });
-  mailListener.start();
 
   // start a worker to handle the messages
   var mailWorker = new MailWorker(Q, rulesPath);
   mailWorker.start();
+
+  return mailListener;
 }
 
 if (!module.parent) {
@@ -33,9 +36,17 @@ if (!module.parent) {
   var user = config.IMAP_USER;
   var pass = config.IMAP_PASS;
   var rules = config.IMAP_RULES;
-  var uidConfig = { url: config.REDISCLOUD_URL };
+  var uidConfig = { url: config.REDIS_URL };
 
   // this is for etcd
   //var uidConfig = { host: argv['etcd-host']};
-  start(user, pass, uidConfig, rules);
+  var ml = setup(user, pass, uidConfig, rules);
+  if (argv.uid) {
+    ml.once('ready', function() {
+      ml.getMessages(config.LATEST_UID, config.LATEST_UID);
+    });
+    ml.start(true);
+  } else {
+    ml.start();
+  }
 }

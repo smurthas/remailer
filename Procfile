@@ -1,1 +1,2 @@
-worker: export NODE_PATH=lib && node index.js
+worker: node index.js
+uid: node index.js --uid
