@@ -1,4 +1,5 @@
 var argv = require('optimist').argv;
+var _ = require('underscore');
 
 var MailListener = require('mailListener');
 var MailWorker = require('mailWorker');
@@ -32,7 +33,7 @@ function setup(user, pass, uidConfig, rulesPath) {
 }
 
 if (!module.parent) {
-  console.error('config', config);
+  console.error('config', _.omit(config, 'IMAP_PASS'));
   var user = config.IMAP_USER;
   var pass = config.IMAP_PASS;
   var rules = config.IMAP_RULES;
