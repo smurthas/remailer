@@ -61,7 +61,12 @@ if (!module.parent) {
   var uidConfig = { url: config.REDIS_URL };
 
   if (argv['set-uid']) {
-    return setUID(uidConfig, argv['set-uid'], process.exit);
+    return setUID(uidConfig, argv['set-uid'], function(err) {
+      if (err) {
+        console.error('ERROR setting UID:', err);
+      }
+      console.log('Set UID.');
+    });
   }
 
   // this is for etcd
