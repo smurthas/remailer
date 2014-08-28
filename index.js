@@ -47,6 +47,8 @@ function setUID(storeConfig, newUid, callback) {
       console.log('New UID is significatnly different than old UID. Waiting 10 seconds and then setting new UID to:', newUid);
       return setTimeout(set, 10 * 1000);
     }
+
+    setImmediate(set);
   });
   store.setLatestUID(newUid, callback);
 }
