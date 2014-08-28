@@ -34,10 +34,19 @@ function setup(user, pass, uidConfig, rulesPath) {
 
 function setUID(storeConfig, newUid, callback) {
   var store = new UIDStore(config.UID_STORE, storeConfig);
+
   function set() {
     console.log('Setting new UID to:', newUid);
-    store.setLatestUID(newUid, callback);
+    store.setLatestUID(newUid, function(err) {
+      if (err) return callback(err);
+      store.getLatestUID(function(err, currentUID) {
+        if (err) return callback(err);
+        console.log('Set UID, now it is:', currentUID);
+        setImmediate(callback);
+      });
+    });
   }
+
   store.getLatestUID(function(err, oldUID) {
     oldUID = parseInt(oldUID);
     console.log('old UID was:', oldUID);
@@ -50,7 +59,6 @@ function setUID(storeConfig, newUid, callback) {
 
     setImmediate(set);
   });
-  store.setLatestUID(newUid, callback);
 }
 
 if (!module.parent) {
@@ -66,6 +74,8 @@ if (!module.parent) {
         console.error('ERROR setting UID:', err);
       }
       console.log('Set UID.');
+
+      process.exit();
     });
   }
 
