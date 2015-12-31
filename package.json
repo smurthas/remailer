@@ -6,12 +6,13 @@
   "dependencies": {
     "async": "~0.2.9",
     "imap": "~0.8.6",
-    "underscore": "~1.5.2",
-    "request": "~2.27.0",
     "knox": "~0.8.6",
     "node-etcd": "~2.0.5",
+    "optimist": "~0.6.1",
     "redis": "~0.10.1",
-    "optimist": "~0.6.1"
+    "request": "~2.27.0",
+    "twilio": "^2.8.0",
+    "underscore": "~1.5.2"
   },
   "devDependencies": {
     "mocha": "~1.17.1",
