@@ -1,5 +1,6 @@
 var argv = require('optimist').argv;
 var _ = require('underscore');
+var async = require('async');
 
 var MailListener = require('mailListener');
 var MailWorker = require('mailWorker');
@@ -87,7 +88,32 @@ if (!module.parent) {
       ml.getMessages(config.LATEST_UID, config.LATEST_UID);
     });
     ml.start(true);
+  } else if (argv['uid-range']) {
+    var start = parseInt(config.EARLIEST_UID);
+    var end = parseInt(config.LATEST_UID);
+    var cursor = end;
+    var segments = [];
+    while (cursor > start) {
+      var segment = [cursor,cursor];
+      cursor = Math.max(cursor - 100, start);
+      segment[0] = cursor;
+      segments.push(segment);
+    }
+    console.error('segments', segments);
+
+    ml.once('ready', function() {
+      async.forEachSeries(segments, function(segment, next) {
+        ml.once('end', next);
+        console.error('segment', segment);
+        ml.getMessages(segment[0], segment[1]);
+      }, function done() {
+        console.log('done!');
+      });
+      //ml.getMessages(config.EARLIEST_UID, config.LATEST_UID);
+    });
+    ml.start(true);
   } else {
     ml.start();
   }
 }
+
